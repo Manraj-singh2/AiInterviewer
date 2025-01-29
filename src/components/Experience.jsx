@@ -1,13 +1,11 @@
-import { OrbitControls } from "@react-three/drei";
-
+import { Environment, OrbitControls } from "@react-three/drei";
+import {Avatar} from './avatar'
 export const Experience = () => {
     return (
         <>
         <OrbitControls />
-        <mesh>
-            <boxGeometry />
-            <meshNormalMaterial />
-        </mesh>
+        <Avatar position={[0,-3,5]} scale={2}/>
+        <Environment preset="sunset"/>
         </>
     )
 }
