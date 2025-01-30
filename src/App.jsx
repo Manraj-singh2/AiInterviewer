@@ -6,7 +6,7 @@ function App() {
 
   return (
     <>
-      <Canvas shadows camera={{position:[0,0,8], fov:42}}>
+      <Canvas shadows camera={{position:[0,0,10], fov:42}}>
         <Experience />
       </Canvas>
     </>
