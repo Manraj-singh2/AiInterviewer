@@ -19,7 +19,7 @@ export function Avatar(props) {
   idle[0].name = "idle";
   talking[0].name = "talking";
   
-  const [animation, setAnimation] = useState("talking");
+  const [animation, setAnimation] = useState("idle");
 
   const group = useRef();
 
