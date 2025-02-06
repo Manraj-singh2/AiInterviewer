@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 const PORT = 8080;
 const path = require("path");
-const TTS = require(path.join(__dirname,"TTS.js"))
+const TTS = require(path.join(__dirname,"textAudio.js"))
 const AI = require(path.join(__dirname,"AI.js"))
 
 app.use(cors());
@@ -11,10 +11,14 @@ app.use(cors());
 app.get("/api", async (req, res) => {
   
   try{
-    const prompt = "Explain how AI works";
+    const prompt = "Explain how ai work in 20 words";
 
     const response = await AI.response(prompt);
- 
+
+    await TTS.convertText(response);
+
+    TTS.processAudio();
+
     res.json({ message: "Like this video!", people: ["Manraj", "Jack", "Barry"], response: response });
    
   }catch(err){
