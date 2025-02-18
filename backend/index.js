@@ -16,8 +16,14 @@ app.get("/api", async (req, res) => {
     const response = await AI.response(prompt);
 
     await TTS.convertText(response);
+    const fileName =  path.join(__dirname + '/ai.mp3');
+    const id = await TTS.uploadToCloudinary(fileName);
 
-    TTS.processAudio();
+    await TTS.processAudio(id.url);
+    
+    await TTS.deleteFromCloudinary(id.id);
+
+    
 
     res.json({ message: "Like this video!", people: ["Manraj", "Jack", "Barry"], response: response });
    
