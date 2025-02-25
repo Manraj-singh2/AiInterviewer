@@ -4,6 +4,12 @@ const {AssemblyAI} = require("assemblyai");
 //import cloudinary
 const cloudinary = require('cloudinary').v2;
 
+const axios = require('axios');
+
+const FormData = require('form-data');
+
+const fs = require('fs');
+
 //dotenv for .env
 require("dotenv").config();
 
@@ -24,24 +30,31 @@ cloudinary.config({
 }); 
 
 //using gtts to convert text to speech
-exports.convertText = (speech) => {
-    
-    const  gtts = new gTTS(speech, 'en');
- 
-    gtts.save('Voice.mp3', function (err, result){
-    if(err) { throw new Error(err); }
-    console.log("Text to speech converted!");
-});
+exports.convertText = async (text) => {
+  try{
+    const apiKey = process.env.VOICE_RSS;
+  const url = `https://api.voicerss.org/?key=${apiKey}&hl=en-us&src=${encodeURIComponent(text)}`;
+
+  const response = await axios.get(url, { responseType: 'arraybuffer' });
+  fs.writeFileSync('output.mp3', response.data);
+  console.log('Audio saved as output.mp3');
+  }catch(err){
+    console.log(err.message);
+  }
 }
 
 //for uploading audio file to cloudinary
 exports.uploadToCloudinary = async (filePath) => {
   try {
 
+    //console.log(filePath);
     // Use Cloudinary's uploader.upload method to upload a local file
     const result = await cloudinary.uploader.upload(filePath, {
-      resource_type: "video", //file type
+      resource_type: "video",
+      format: "mp3" //file type
     });
+
+
 
     console.log("File uploaded to Cloudinary successfully!");
     console.log("Cloudinary URL:", result.secure_url);
@@ -49,7 +62,9 @@ exports.uploadToCloudinary = async (filePath) => {
 
     return {url:result.secure_url,id:result.public_id}; // Return the secure URL of the uploaded file
   } catch (error) {
+
     console.error("Error uploading file to Cloudinary:", error.message);
+    
     throw new Error(error);
   }
 };
@@ -60,12 +75,7 @@ exports.deleteFromCloudinary = async (publicId) => {
       resource_type: "video", // Automatically detects the resource type
     });
 
-    if (result.result === "ok") {
-      console.log("File deleted successfully from Cloudinary!");
-    } else {
-      console.log("File deletion failed or file not found:", result.result);
-    }
-
+      console.log("Deleted");
     return result;
   } catch (error) {
     console.error("Error deleting file from Cloudinary:", error.message);
@@ -73,27 +83,36 @@ exports.deleteFromCloudinary = async (publicId) => {
   }
 };
 
-//using assemblyAi for speech to text
-exports.processAudio = async (url) => {
 
-    try {
-        
-      // Initialize AssemblyAI with the API key from the environment
-const client = new AssemblyAI({ apiKey: process.env.ASSEMBLY_KEY, });
-    
-        // Define the audio file path and configuration
-        
-        const config = { audio_url: url };
-    
-        // Run the transcription process
-        const transcript = await client.transcripts.transcribe(config);
-    
-        // Log and return the transcribed text
-        console.log("Transcription result:", transcript.text);
-        return Promise.resolve(transcript.text);
-      } catch (error) {
-        console.error("Error processing audio:", error.message);
-        return Promise.reject(error);
+// Process audio file (upload and transcribe)
+exports.processAudio = async (audioUrl) => {
+  const client = new AssemblyAI({
+    apiKey: process.env.ASSEMBLY_KEY,
+  });
+
+  const params = {
+    audio: audioUrl,
+    speaker_labels: true
+  };
+
+  try {
+    const transcript = await client.transcripts.transcribe(params);
+
+    if (transcript.status === 'error') {
+      console.error(`Transcription failed: ${transcript.error}`);
+      return;
+    }
+
+    console.log(transcript.text);
+
+    if (transcript.utterances) {
+      for (let utterance of transcript.utterances) {
+        console.log(`Speaker ${utterance.speaker}: ${utterance.text}`);
       }
-    
-}
+    }
+  } catch (error) {
+    console.error(`Error during transcription: ${error.message}`);
+  }
+};
+
+

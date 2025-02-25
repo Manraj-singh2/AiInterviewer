@@ -11,12 +11,13 @@ app.use(cors());
 app.get("/api", async (req, res) => {
   
   try{
-    const prompt = "Explain how ai work in 20 words";
+    const prompt = "What is your name";
 
     const response = await AI.response(prompt);
-
+    
     await TTS.convertText(response);
-    const fileName =  path.join(__dirname + '/ai.mp3');
+    const fileName =  path.join(__dirname , '/output.mp3');
+    
     const id = await TTS.uploadToCloudinary(fileName);
 
     await TTS.processAudio(id.url);
