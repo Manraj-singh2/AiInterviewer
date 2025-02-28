@@ -105,11 +105,11 @@ exports.processAudio = async (audioUrl) => {
 
     console.log(transcript.text);
 
-    if (transcript.utterances) {
+    /*if (transcript.utterances) {
       for (let utterance of transcript.utterances) {
         console.log(`Speaker ${utterance.speaker}: ${utterance.text}`);
       }
-    }
+    }*/
   } catch (error) {
     console.error(`Error during transcription: ${error.message}`);
   }

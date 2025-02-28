@@ -15,6 +15,7 @@ exports.response = async (prompt) => {
     try {
       const result = await model.generateContent(prompt);
       
+      console.log(result.response.text());
       return Promise.resolve(result.response.text());
     } catch (error) {
       console.error("Error in AI response:", error.message);

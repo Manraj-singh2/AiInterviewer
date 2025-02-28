@@ -8,6 +8,11 @@ const AI = require(path.join(__dirname,"AI.js"))
 
 app.use(cors());
 
+const multer = require("multer");
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 app.get("/api", async (req, res) => {
   
   try{
@@ -32,6 +37,15 @@ app.get("/api", async (req, res) => {
     res.json({err:"An Error occurred"})
   }  
   
+});
+
+app.post("/upload-audio", upload.single("audio"), (req, res) => {
+ 
+  if (!req.file) {
+    return res.status(400).send("No audio file uploaded.");
+  }
+  console.log("Received audio file:", req.file.originalname);
+  res.status(200).send("Audio uploaded successfully.");
 });
 
 app.listen(PORT, () => {
