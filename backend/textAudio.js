@@ -51,7 +51,7 @@ exports.uploadToCloudinary = async (filePath) => {
     // Use Cloudinary's uploader.upload method to upload a local file
     const result = await cloudinary.uploader.upload(filePath, {
       resource_type: "video",
-      format: "mp3" //file type
+      format: "wav" //file type
     });
 
 

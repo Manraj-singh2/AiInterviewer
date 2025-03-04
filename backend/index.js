@@ -10,7 +10,14 @@ app.use(cors());
 
 const multer = require("multer");
 
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null,'recording'+ path.extname(file.originalname)); // Unique filename
+  },
+});
 const upload = multer({ storage: storage });
 
 app.get("/api", async (req, res) => {
@@ -39,13 +46,18 @@ app.get("/api", async (req, res) => {
   
 });
 
-app.post("/upload-audio", upload.single("audio"), (req, res) => {
+app.post("/upload-audio", upload.single("audio"), async (req, res) => {
  
   if (!req.file) {
     return res.status(400).send("No audio file uploaded.");
   }
+  console.log(req.file);
   console.log("Received audio file:", req.file.originalname);
   res.status(200).send("Audio uploaded successfully.");
+  const id = await TTS.uploadToCloudinary(path.join(__dirname,'/uploads/recording.wav'));
+
+  await TTS.processAudio(id.url);
+
 });
 
 app.listen(PORT, () => {
