@@ -104,6 +104,7 @@ exports.processAudio = async (audioUrl) => {
     }
 
     console.log(transcript.text);
+    return transcript.text;
 
     /*if (transcript.utterances) {
       for (let utterance of transcript.utterances) {

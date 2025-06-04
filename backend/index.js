@@ -48,16 +48,22 @@ const upload = multer({ storage: storage });
 
 app.post("/upload-audio", upload.single("audio"), async (req, res) => {
  
-  console.log("upload_audio")
+  
   if (!req.file) {
     return res.status(400).send("No audio file uploaded.");
   }
-  console.log(req.file);
-  console.log("Received audio file:", req.file.originalname);
+  //console.log(req.file);
+  //console.log("Received audio file:", req.file.originalname);
   res.status(200).send("Audio uploaded successfully.");
   const id = await TTS.uploadToCloudinary(path.join(__dirname,'/uploads/recording.wav'));
 
-  await TTS.processAudio(id.url);
+  const prompt = await TTS.processAudio(id.url);
+
+  const response = await AI.response(prompt);
+
+  await TTS.deleteFromCloudinary(id.id);
+
+  await TTS.convertText(response);
 
 });
 

@@ -1,11 +1,8 @@
+import { useState } from "react";
 import { ReactMediaRecorder } from "react-media-recorder";
 
 export default function AudioRecorder() {
-  const sendAudioToServer = async (mediaBlobUrl) => {
-    
-    const response = await fetch(mediaBlobUrl);
-    const blob = await response.blob();
-
+  const sendAudioToServer = async (blob) => {
     const audioFile = new File([blob], "recording.wav", { type: "audio/wav" });
 
     const formData = new FormData();
@@ -17,8 +14,6 @@ export default function AudioRecorder() {
         body: formData,
       });
 
-      
-
       if (res.ok) {
         console.log("Audio successfully uploaded!");
       } else {
@@ -29,25 +24,20 @@ export default function AudioRecorder() {
     }
   };
 
+
   return (
     <ReactMediaRecorder
       audio
-      render={({ status, startRecording, stopRecording, mediaBlobUrl }) => (
+      // This is the only place where blob is reliably ready
+      onStop={(blobUrl, blob) => {
+        console.log(" Recording stopped, blob ready.");
+        sendAudioToServer(blob);
+      }}
+      render={({ status, startRecording, stopRecording }) => (
         <div>
           <p>Status: {status}</p>
           <button onClick={startRecording}>Start Recording</button>
-          <button
-            onClick={() => {
-              stopRecording();
-              console.log("Stop recording")
-              setTimeout(() => {
-                if (mediaBlobUrl) sendAudioToServer(mediaBlobUrl);
-              }, 1000);
-            }}
-          >
-            Stop Recording
-          </button>
-          {mediaBlobUrl && <audio src={mediaBlobUrl} controls />}
+          <button onClick={stopRecording}>Stop Recording</button>
         </div>
       )}
     />
