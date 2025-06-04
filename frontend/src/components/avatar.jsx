@@ -32,7 +32,7 @@ export function Avatar(props) {
     return () => actions[animation].fadeOut(0.5);
   },[animation])
 
-  console.log(idle); 
+  //console.log(idle); 
 
   return (
     <group {...props} dispose={null} ref={group}>

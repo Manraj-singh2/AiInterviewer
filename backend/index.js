@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-app.get("/api", async (req, res) => {
+/*app.get("/api", async (req, res) => {
   
   try{
     const prompt = "What is your name";
@@ -44,10 +44,11 @@ app.get("/api", async (req, res) => {
     res.json({err:"An Error occurred"})
   }  
   
-});
+});*/
 
 app.post("/upload-audio", upload.single("audio"), async (req, res) => {
  
+  console.log("upload_audio")
   if (!req.file) {
     return res.status(400).send("No audio file uploaded.");
   }

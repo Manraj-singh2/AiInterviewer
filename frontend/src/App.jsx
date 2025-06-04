@@ -1,7 +1,7 @@
-import { useState } from 'react'
 import {Canvas} from '@react-three/fiber'
 import Experience from './components/Experience'; 
-import AudioRecorder from './components/audio.jsx';
+import AudioRecorder from './components/mic';
+
 
 function App() {
 
@@ -12,7 +12,8 @@ function App() {
         
       </Canvas>
 
-      <AudioRecorder />  
+      
+      <AudioRecorder />
 
     </>
   )

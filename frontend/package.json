@@ -14,9 +14,10 @@
     "@react-three/fiber": "^8.17.12",
     "axios": "^1.7.9",
     "gltf": "^1.0.3",
+    "hls.js": "^1.6.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-mic": "^12.4.6",
+    "react-media-recorder": "^1.7.1",
     "react-scripts": "^5.0.1",
     "three": "^0.172.0"
   },
