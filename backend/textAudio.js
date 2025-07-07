@@ -1,20 +1,13 @@
-//import assemblyAi
 const {AssemblyAI} = require("assemblyai");
-
-//import cloudinary
 const cloudinary = require('cloudinary').v2;
-
 const axios = require('axios');
-
 const FormData = require('form-data');
-
 const fs = require('fs');
-
-//dotenv for .env
+const ffmpeg = require("fluent-ffmpeg");
 require("dotenv").config();
+const gTTS = require('gtts');  //google text to speech
+const { exec } = require("child_process");
 
-//google text to speech
-const gTTS = require('gtts');
 
 //using cloudinary to store audio files
 cloudinary.config({ 
@@ -28,6 +21,16 @@ cloudinary.config({
   secure: true
 
 }); 
+
+const execCommand = (command) => {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) reject(error);
+      resolve(stdout);
+    });
+  });
+};
+
 
 //using gtts to convert text to speech
 exports.convertText = async (text) => {
@@ -116,4 +119,42 @@ exports.processAudio = async (audioUrl) => {
   }
 };
 
+exports.convertMp3ToWav = async(inputPath,outputPath,__dirname) => {
+  
+  ffmpeg.setFfmpegPath(__dirname+"/ffmpeg/bin/ffmpeg.exe");
+
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .toFormat("wav")
+      .audioFrequency(16000)
+      .audioChannels(1)          // Mono
+      .audioCodec("pcm_s16le")
+      .on("end", () => {
+        console.log("Conversion completed.");
+        resolve(outputPath);
+      })
+      .on("error", (err) => {
+        console.error("Error during conversion:", err.message);
+        reject(err);
+      })
+      .save(outputPath);
+  });
+}
+
+
+exports.createLipSync = async (__dirname) =>{
+  
+
+exec(".\\rhubarb\\rhubarb.exe -f json -o .\\output.json .\\output.wav -r phonetic", (error, stdout, stderr) => {
+  if (error) {
+    console.error(`Error: ${error.message}`);
+    return;
+  }
+  if (stderr) {
+    console.error(` stderr: ${stderr}`);
+    return;
+  }
+  console.log(`Output:\n${stdout}`);
+});
+} 
 

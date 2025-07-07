@@ -9,12 +9,8 @@ function App() {
     <>
       <Canvas shadows camera={{position:[0,0,10], fov:42}}>
         <Experience />
-        
       </Canvas>
-
-      
       <AudioRecorder />
-
     </>
   )
 }

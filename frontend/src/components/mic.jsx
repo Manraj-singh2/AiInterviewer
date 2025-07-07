@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ReactMediaRecorder } from "react-media-recorder";
 
 export default function AudioRecorder() {

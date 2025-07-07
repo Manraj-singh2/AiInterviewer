@@ -1,0 +1,1 @@
+install rhubarb.md here from https://github.com/DanielSWolf/rhubarb-lip-sync/releases

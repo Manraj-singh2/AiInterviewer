@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "soundFile": "D:\\Projects\\AiInterviewer\\AiInterviewer\\backend\\output.wav",
+    "duration": 5.40
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.08, "value": "X" },
+    { "start": 0.08, "end": 0.18, "value": "B" },
+    { "start": 0.18, "end": 0.39, "value": "F" },
+    { "start": 0.39, "end": 0.53, "value": "B" },
+    { "start": 0.53, "end": 0.67, "value": "C" },
+    { "start": 0.67, "end": 0.81, "value": "E" },
+    { "start": 0.81, "end": 0.88, "value": "B" },
+    { "start": 0.88, "end": 1.02, "value": "H" },
+    { "start": 1.02, "end": 1.09, "value": "C" },
+    { "start": 1.09, "end": 1.23, "value": "E" },
+    { "start": 1.23, "end": 1.30, "value": "B" },
+    { "start": 1.30, "end": 1.52, "value": "X" },
+    { "start": 1.52, "end": 1.66, "value": "B" },
+    { "start": 1.66, "end": 1.73, "value": "C" },
+    { "start": 1.73, "end": 1.80, "value": "B" },
+    { "start": 1.80, "end": 2.08, "value": "F" },
+    { "start": 2.08, "end": 2.15, "value": "G" },
+    { "start": 2.15, "end": 2.29, "value": "E" },
+    { "start": 2.29, "end": 2.71, "value": "C" },
+    { "start": 2.71, "end": 2.92, "value": "B" },
+    { "start": 2.92, "end": 3.77, "value": "X" },
+    { "start": 3.77, "end": 3.83, "value": "B" },
+    { "start": 3.83, "end": 3.95, "value": "C" },
+    { "start": 3.95, "end": 4.02, "value": "E" },
+    { "start": 4.02, "end": 4.37, "value": "B" },
+    { "start": 4.37, "end": 4.51, "value": "C" },
+    { "start": 4.51, "end": 4.65, "value": "B" },
+    { "start": 4.65, "end": 5.40, "value": "X" }
+  ]
+}
