@@ -4,13 +4,37 @@ Command: npx gltfjsx@6.5.3 public/models/678f9ea219e4e31ec35e1612.glb -o src/com
 */
 
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import { useGraph, useFrame, useLoader } from "@react-three/fiber";
+import { useGraph, useFrame } from "@react-three/fiber";
 import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
 import { useControls } from "leva";
-import * as THREE from "three";
+import useSWR from "swr";
+
+const corresponding = {
+  A: "viseme_PP",
+  B: "viseme_kk",
+  C: "viseme_I",
+  D: "viseme_AA",
+  E: "viseme_O",
+  F: "viseme_U",
+  G: "viseme_FF",
+  H: "viseme_TH",
+  X: "viseme_PP",
+};
+
+const fetcher = (url) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error(`Failed to fetch ${url}`);
+    return res.json();
+  });
 
 export function Avatar(props) {
+  const {
+    data: audioData,
+  } = useSWR("http://localhost:8080/get-audio", fetcher);
+
+  const lipSync = audioData?.json
+
   const { playAudio } = useControls({
     playAudio: false,
     script: {
@@ -19,62 +43,12 @@ export function Avatar(props) {
     },
   });
 
-  const audio = useMemo(() => new Audio("/output.mp3"), []);
+  //const audio = useMemo(() => new Audio("/output.mp3"), []);
   //const jsonFile = useLoader(THREE.FileLoader, `/output.json`);
-  const [lipSync, setLipSync] = useState(null);
-
-  useEffect(() => {
-    fetch("/output.json")
-      .then((res) => res.json())
-      .then(setLipSync)
-      .catch((err) => console.error("Failed to load JSON", err));
-  }, []);
+  //const lipSync = JSON.parse(jsonFile);
 
   
 
-  useEffect(() => {
-    fetch("/output.json")
-      .then((res) => res.json())
-      .then(setLipSync)
-      .catch((err) => console.error("Failed to load JSON", err));
-  }, []);
-
-  useFrame(() => {
-    const currentAudioTime = audio.currentTime;
-    if (audio.paused || audio.ended) {
-      setAnimation("Idle");
-      return;
-    }
-
-    for (var i = 0; i < lipSync.mouthCues.length; i++) {
-      const mouthCue = lipSync.mouthCues[i];
-      if (
-        currentAudioTime >= mouthCue.start &&
-        currentAudioTime <= mouthCue.end
-      ) {
-        console.log("Value: "+mouthCue.value);
-      }
-    }
-  });
-
-  // useEffect(() => {
-  //   console.log(nodes.Wolf3D_Avatar.morphTargetDictionary);
-  //   console.log("Teeth: ", nodes.Wolf3D_Avatar.morphTargetInfluences);
-  // }, []);
-
-  useEffect(() => {
-    if (playAudio) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-  }, [playAudio]);
-
-  
-
-  const { scene } = useGLTF("/models/678f9ea219e4e31ec35e1612.glb");
-  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
-  const { nodes, materials } = useGraph(clone);
   const { animations: idle } = useFBX("/animations/Sitting Idle.fbx");
   const { animations: talking } = useFBX("/animations/Sitting Talking.fbx");
 
@@ -82,17 +56,86 @@ export function Avatar(props) {
   talking[0].name = "talking";
 
   const [animation, setAnimation] = useState("idle");
-
   const group = useRef();
 
   const { actions } = useAnimations([idle[0], talking[0]], group);
 
+  const audio = useMemo(() => {
+  if (!audioData?.wavBase64) return null;
+  return new Audio("data:audio/wav;base64," + audioData.wavBase64);
+}, [audioData]);
+
   useEffect(() => {
-    actions[animation].reset().fadeIn(0.5).play();
-    return () => actions[animation].fadeOut(0.5);
+    const selectedAction = actions[animation];
+    if (selectedAction) {
+      selectedAction.reset().fadeIn(-0.5).play();
+      return () => selectedAction.fadeOut(1.0);
+    } else {
+      console.warn(`Animation '${animation}' not found in actions.`);
+    }
   }, [animation]);
 
   //console.log(idle);
+
+  useFrame(() => {
+    if (
+      !nodes?.Wolf3D_Avatar?.morphTargetDictionary ||
+      !nodes?.Wolf3D_Avatar?.morphTargetInfluences
+    ) {
+      return;
+    }
+
+    const currentAudioTime = audio.currentTime || null;
+
+    // Reset all visemes
+    Object.values(corresponding).forEach((value) => {
+      const index = nodes.Wolf3D_Avatar.morphTargetDictionary[value];
+      if (index !== undefined) {
+        nodes.Wolf3D_Avatar.morphTargetInfluences[index] = 0;
+      }
+    });
+
+    // Control animation
+    if (audio.paused || audio.ended) {
+      if (animation !== "idle") setAnimation("idle");
+      return;
+    } else {
+      if (animation !== "talking") setAnimation("talking");
+    }
+
+    // Find active viseme for current time
+    if(audio){
+    const activeCue = lipSync.mouthCues.find(
+      (cue) => currentAudioTime >= cue.start && currentAudioTime <= cue.end
+    );
+    
+    if (activeCue) {
+      const viseme = corresponding[activeCue.value];
+      const index = nodes.Wolf3D_Avatar.morphTargetDictionary[viseme];
+      if (index !== undefined) {
+        nodes.Wolf3D_Avatar.morphTargetInfluences[index] = 1;
+      }
+    }
+  }
+  });
+  // useEffect(() => {
+  //   console.log(nodes.Wolf3D_Avatar.morphTargetDictionary);
+  //   console.log("Teeth: ", nodes.Wolf3D_Avatar.morphTargetInfluences);
+  // }, []);
+
+ useEffect(() => {
+  if (!audio) return; 
+
+  if (playAudio) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}, [playAudio, audio]);
+
+  const { scene } = useGLTF("/models/678f9ea219e4e31ec35e1612.glb");
+  const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
+  const { nodes, materials } = useGraph(clone);
 
   if (!lipSync) return null;
 
@@ -112,3 +155,4 @@ export function Avatar(props) {
 }
 
 useGLTF.preload("/models/678f9ea219e4e31ec35e1612.glb");
+useGLTF.preload("/models/animations.glb");

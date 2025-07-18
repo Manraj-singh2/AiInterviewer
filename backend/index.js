@@ -7,7 +7,7 @@ const TTS = require(path.join(__dirname, "textAudio.js"));
 const AI = require(path.join(__dirname, "AI.js"));
 const Mp32Wav = require("mp3-to-wav");
 const fs = require("fs");
-var response = "";
+var AIresponse = "";
 
 app.use(cors());
 
@@ -63,7 +63,7 @@ app.get("/get-audio", async (req, res) => {
     const outputWav = fs.readFileSync(wavPath); // binary buffer
 
     const response = {
-      message: "Here is your audio and lip sync data",
+      message: AIresponse,
       json: JSON.parse(outputJson),
       wavBase64: outputWav.toString("base64"), // Send as base64
     };
@@ -88,11 +88,11 @@ app.post("/upload-audio", upload.single("audio"), async (req, res) => {
 
   const prompt = await TTS.processAudio(id.url);
 
-  response = await AI.response(prompt);
+  AIresponse = await AI.response(prompt);
 
   await TTS.deleteFromCloudinary(id.id);
 
-  await TTS.convertText(response);
+  await TTS.convertText(AIresponse);
 
   await TTS.convertMp3ToWav(
     path.join(__dirname, "/output.mp3"),
