@@ -46,7 +46,7 @@ app.get("/api", async (req, res) => {
 
     
 
-    res.json({ message: "Like this video!", people: ["Manraj", "Jack", "Barry"], response: response });
+    res.json({ message: "Hello World", people: ["Manraj", "Jack", "Barry"], response: response });
    
   }catch(err){
     res.json({err:"An Error occurred"})
